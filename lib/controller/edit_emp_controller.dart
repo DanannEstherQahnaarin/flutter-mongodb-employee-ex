@@ -2,7 +2,7 @@ import 'package:flutter_mongodb_employee_ex01/model/model_employee.dart';
 import 'package:flutter_mongodb_employee_ex01/repositories/employee_repository.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/legacy.dart';
-
+import 'package:mongo_dart/mongo_dart.dart';
 
 class EditEmployeeController extends StateNotifier<AsyncValue<void>> {
   final EmployeeRepository _repository;
@@ -46,9 +46,21 @@ class EditEmployeeController extends StateNotifier<AsyncValue<void>> {
       state = AsyncValue.error(e, stack);
     }
   }
+
+  Future<void> deleteEmployee(ObjectId id) async {
+    state = const AsyncValue.loading();
+    try {
+      // Repository를 통해 삭제 요청
+      await _repository.deleteEmployee(id);
+
+      state = const AsyncValue.data(null);
+    } catch (e, stack) {
+      state = AsyncValue.error(e, stack);
+    }
+  }
 }
 
-final editEmployeeControllerProvider = 
+final editEmployeeControllerProvider =
     StateNotifierProvider<EditEmployeeController, AsyncValue<void>>((ref) {
-  return EditEmployeeController(ref.watch(employeeRepositoryProvider));
-});
+      return EditEmployeeController(ref.watch(employeeRepositoryProvider));
+    });
